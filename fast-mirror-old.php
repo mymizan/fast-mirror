@@ -70,7 +70,7 @@ function fast_mirrors($mirror, $show = true) {
 
 	}
 
-	ksort($ping_time);
+	ksort($ping_time); //short the keys
 
 	$fastest_mirror = array_keys($ping_time)[0];
 
