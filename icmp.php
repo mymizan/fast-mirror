@@ -4,6 +4,8 @@
  *
  * PHP class for sending ICMP ping with PHP
  *
+ * Original author name and link give. I have remved a few unnecessary things
+ *
  * @author Dawid Spiechowicz
  * @link https://gist.github.com/spiechu/2661592
  */
@@ -39,7 +41,7 @@ class ICMPPing {
 	 */
 	protected $_userId;
 
-	public function __construct() {
+	public function __construct($timeout) {
 		// stash current user id and set to root
 		// for object lifetime
 		$this->_userId = posix_geteuid();
@@ -51,7 +53,7 @@ class ICMPPing {
 		// set response timeout
 		socket_set_option(
 			$this->_socket, SOL_SOCKET, SO_RCVTIMEO, array(
-				'sec' => 1,
+				'sec' => $timeout, //timeout seconds part
 				'usec' => 0));
 	}
 
@@ -238,9 +240,10 @@ class ICMPPingProcesser {
 
 }
 
+/**
 if (PHP_SAPI === 'cli' && isset($_SERVER['argv'][1])) {
-	$pingProcesser = new ICMPPingProcesser($_SERVER['argv'][1]);
-	echo $pingProcesser->ping();
+$pingProcesser = new ICMPPingProcesser($_SERVER['argv'][1]);
+echo $pingProcesser->ping();
 } else {
-	echo 'Not in cli mode or agument not set';
-}
+echo 'Not in cli mode or agument not set';
+}**/
