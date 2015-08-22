@@ -41,10 +41,24 @@ class ICMPPing {
 	 */
 	protected $_userId;
 
-	public function __construct($timeout) {
+	/**
+	 * Host to ping
+	 * @var string
+	 */
+	public $host;
+
+	/**
+	 * Timeout value
+	 * @var integer
+	 */
+	public $timeout;
+
+	public function __construct($host, $timeout) {
 		// stash current user id and set to root
 		// for object lifetime
 		$this->_userId = posix_geteuid();
+		$this->host = $host;
+		$this->timeout = $timeout;
 		posix_seteuid(0);
 
 		$this->_socket = socket_create(
@@ -61,18 +75,17 @@ class ICMPPing {
 	 * Sends ICMP echo request packet to the host provided in $destination
 	 * and returns response
 	 *
-	 * @param  string  $destination host
 	 * @param  string  $message     message to send
 	 * @param  integer $port        not needed actually
 	 * @return string  response from host
 	 */
-	public function sendPacket($destination, $message = self::DEFAULT_MSG, $port = 0) {
+	public function sendPacket($message = self::DEFAULT_MSG, $port = 0) {
 		$packet = $this->getNewPacket($message);
 		socket_sendto(
-			$this->_socket, $packet, strlen($packet), 0, $destination, $port);
+			$this->_socket, $packet, strlen($packet), 0, $this->host, $port);
 
 		$respond = 0;
-		socket_recvfrom($this->_socket, $respond, 255, 0, $destination, $port);
+		socket_recvfrom($this->_socket, $respond, 255, 0, $this->host, $port);
 
 		// strip IP header
 		return substr($respond, 20);

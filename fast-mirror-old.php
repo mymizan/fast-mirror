@@ -64,9 +64,6 @@ function fast_mirrors($mirror, $show = true) {
 		if (intval($time) > 0) {
 			$ping_time[$time] = $host;
 		}
-		if ($key > 0) {
-			break;
-		}
 
 	}
 

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Fast Mirror - find the fastest mirror with ICMP ping.
  *
@@ -10,6 +9,8 @@
  * @link    http://github.com/mymizan
  */
 
+require __DIR__ . '/icmp.php';
+
 /**
  * Ping host using the Unix standard ping command
  *
@@ -18,7 +19,30 @@
  * @return float            time in miliseconds
  */
 function php_ping($host, $timeout) {
-	return shell_exec("ping -c1 -t{$timeout} {$host} | tail -1| awk '{print $4}' | cut -d '/' -f 2");
+
+	try {
+
+		$icmp = new ICMPPing($host, $timeout);
+		$start_time = microtime(true);
+		$respond = $icmp->sendPacket('Everything OK');
+		$ping_time = microtime(true) - $start_time;
+
+		if (@$icmp->analyzeRespond($respond) == 'Everything OK') {
+			return round($ping_time * 1000, 2);
+		} else {
+			return 0;
+		}
+
+	} catch (Exception $e) {
+		return 0;
+	}
+}
+
+/**
+ *  Check if the script is being run with root privilege
+ */
+function is_root_user() {
+	return posix_getuid() == 0;
 }
 
 /**
@@ -45,7 +69,10 @@ function mirror_list($mirror_url) {
  * @param  string $mirror URL to a mirror list or file path
  * @return string         return the url of the fastest mirror
  */
-function fast_mirrors($mirror, $show = true) {
+function fast_mirror($mirror, $show = true) {
+	if (!is_root_user()) {
+		die("You must have root privilege" . PHP_EOL);
+	}
 	$hosts = mirror_list($mirror); //http://mirrors.ubuntu.com/mirrors.txt
 	$ping_time = array();
 
@@ -64,10 +91,6 @@ function fast_mirrors($mirror, $show = true) {
 		if (intval($time) > 0) {
 			$ping_time[$time] = $host;
 		}
-		if ($key > 0) {
-			break;
-		}
-
 	}
 
 	ksort($ping_time); //short the keys
@@ -83,3 +106,5 @@ function fast_mirrors($mirror, $show = true) {
 	}
 	return $ping_time[$fastest_mirror]['scheme'] . '://' . $ping_time[$fastest_mirror]['host'] . $ping_time[$fastest_mirror]['path'];
 }
+
+var_dump(fast_mirror('http://mirrors.ubuntu.com/mirrors.txt', true));

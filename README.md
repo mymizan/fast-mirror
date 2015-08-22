@@ -27,7 +27,8 @@ php_ping('www.ubuntu.com', 5); //5 seconds timeout value
 ping with ICMP class (requires root privilege)
 
 ```
-$ping = new ICMPPingProcesser('http://www.google.com');
-echo $ping->ping();
+$icmp = new ICMPPing('www.google.com', 4); //timeout
+$response = $icmp->sendPacket('Everything OK');
+echo $icmp->analyzeRespond($response);
 
 ```
