@@ -56,7 +56,8 @@ function fast_mirrors($mirror, $show = true) {
 
 	foreach ($hosts as $key => $host) {
 		if ($show) {
-			echo ($key + 1) . ' |';
+			echo "\033[5D";
+			echo str_pad($key + 1, 5, ' ', STR_PAD_RIGHT);
 		}
 
 		$time = trim(php_ping($host['host'], 4));

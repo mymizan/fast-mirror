@@ -77,13 +77,14 @@ function fast_mirror($mirror, $show = true) {
 	$ping_time = array();
 
 	if ($show) {
-		echo "Total hosts to ping: " . count($hosts) . "\n";
-		echo "Pinging ... ";
+		echo "Total: " . count($hosts) . "\n";
+		echo "Pinging...      ";
 	}
 
 	foreach ($hosts as $key => $host) {
 		if ($show) {
-			echo ($key + 1) . ' |';
+			echo "\033[5D";
+			echo str_pad($key + 1, 5, ' ', STR_PAD_RIGHT);
 		}
 
 		$time = trim(php_ping($host['host'], 4));
@@ -106,5 +107,3 @@ function fast_mirror($mirror, $show = true) {
 	}
 	return $ping_time[$fastest_mirror]['scheme'] . '://' . $ping_time[$fastest_mirror]['host'] . $ping_time[$fastest_mirror]['path'];
 }
-
-var_dump(fast_mirror('http://mirrors.ubuntu.com/mirrors.txt', true));
